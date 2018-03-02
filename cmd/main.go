@@ -17,7 +17,7 @@ import (
 
 var rootCmd = &cobra.Command{
 	Use:   "pwgen",
-	Short: "pwgen generates passwords from the specified (or default) file",
+	Short: "pwgen generates passwords from a set of the most common English words",
 	Run:   run,
 }
 var maxLength int
@@ -100,11 +100,10 @@ func getLines() ([]string, error) {
 	}
 
 	var lines = make([]string, 0)
-	reader := bytes.NewReader(data)
-	buf_reader := bufio.NewReader(reader)
+	reader := bufio.NewReader(bytes.NewReader(data))
 
 	for {
-		line, err := buf_reader.ReadString('\n')
+		line, err := reader.ReadString('\n')
 
 		switch {
 		case err == io.EOF:
