@@ -10,29 +10,21 @@ import (
 
 	"strings"
 
+	"bytes"
+
 	"github.com/spf13/cobra"
 )
-
-const DEFAULT_WORDS_FILE_NAME = "/usr/share/dict/words"
-const DEFAULT_MAX_LENGTH = 64
 
 var rootCmd = &cobra.Command{
 	Use:   "pwgen",
 	Short: "pwgen generates passwords from the specified (or default) file",
 	Run:   run,
 }
-var wordsFileName string
 var maxLength int
 var verbose bool
 
 func run(cmd *cobra.Command, args []string) {
-	f, err := os.Open(wordsFileName)
-	if err != nil {
-		panic(err)
-	}
-	defer f.Close()
-
-	lines, err := getLines(f)
+	lines, err := getLines()
 
 	if err != nil {
 		panic(err)
@@ -101,12 +93,18 @@ func run(cmd *cobra.Command, args []string) {
 	fmt.Println(pwd)
 }
 
-func getLines(r io.Reader) ([]string, error) {
+func getLines() ([]string, error) {
+	data, err := Asset("words")
+	if err != nil {
+		return nil, err
+	}
+
 	var lines = make([]string, 0)
-	reader := bufio.NewReader(r)
+	reader := bytes.NewReader(data)
+	buf_reader := bufio.NewReader(reader)
 
 	for {
-		line, err := reader.ReadString('\n')
+		line, err := buf_reader.ReadString('\n')
 
 		switch {
 		case err == io.EOF:
@@ -128,7 +126,6 @@ func Execute() {
 }
 
 func init() {
-	rootCmd.Flags().StringVarP(&wordsFileName, "file-name", "f", DEFAULT_WORDS_FILE_NAME, "File containing words from which to choose")
-	rootCmd.Flags().IntVarP(&maxLength, "max-length", "m", DEFAULT_MAX_LENGTH, "Maximum length of the password")
+	rootCmd.Flags().IntVarP(&maxLength, "max-length", "m", 64, "Maximum length of the password")
 	rootCmd.Flags().BoolVarP(&verbose, "verbose", "v", false, "Verbose output (useful for debugging, mostly)")
 }
