@@ -22,6 +22,7 @@ var rootCmd = &cobra.Command{
 }
 var maxLength int
 var verbose bool
+var omitNewline bool
 
 func run(cmd *cobra.Command, args []string) {
 	lines, err := getLines()
@@ -90,7 +91,11 @@ func run(cmd *cobra.Command, args []string) {
 
 	pwd = fmt.Sprintf("%s-%02d", pwd, suffix)
 
-	fmt.Println(pwd)
+	if omitNewline {
+		fmt.Print(pwd)
+	} else {
+		fmt.Println(pwd)
+	}
 }
 
 func getLines() ([]string, error) {
@@ -127,4 +132,5 @@ func Execute() {
 func init() {
 	rootCmd.Flags().IntVarP(&maxLength, "max-length", "m", 64, "Maximum length of the password")
 	rootCmd.Flags().BoolVarP(&verbose, "verbose", "v", false, "Verbose output (useful for debugging, mostly)")
+	rootCmd.Flags().BoolVarP(&omitNewline, "newline-omit", "n", false, "Do not print the trailing newline character")
 }
