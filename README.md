@@ -1,4 +1,4 @@
-# pwgen
+# pwgen-go
 Password generator
 
 # Build
